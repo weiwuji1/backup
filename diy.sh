@@ -1,9 +1,8 @@
 # 添加第三方软件包
-sudo rm -rf package/lean/luci-app-flowoffload
-sudo rm -rf package/diy/adguardhome
-sudo rm -rf package/diy/luci-app-adguardhome
-git clone https://github.com/weiwuji1/my.git package/my
-git clone https://github.com/Leo-Jo-My/luci-app-vssr package/luci-app-vssr            
+git clone https://github.com/weiwuji1/my ~/package
+git clone https://github.com/weiwuji1/luci-app-ssr-plus package/luci-app-ssr-plus
+git clone https://github.com/Leo-Jo-My/luci-app-vssr package/luci-app-vssr
+git clone https://github.com/Leo-Jo-My/my package/my
 git clone https://github.com/vernesong/OpenClash package/openclash
 git clone https://github.com/kang-mk/luci-app-serverchan package/luci-app-serverchan
 git clone https://github.com/kang-mk/luci-app-smartinfo package/luci-app-smartinfo
@@ -23,3 +22,4 @@ sed -i 's#option commit_interval 24h#option commit_interval 10m#g' feeds/package
 sed -i 's#option database_directory /var/lib/nlbwmon#option database_directory /etc/config/nlbwmon_data#g' feeds/packages/net/nlbwmon/files/nlbwmon.config #修改流量统计数据存放默认位置
 sed -i 's#o.default = "admin"#o.default = ""#g' lienol/luci-app-passwall/luasrc/model/cbi/passwall/balancing.lua #去除haproxy默认密码(最新版已无密码)
 sed -i 's#page = entry({"admin", "network"#page = entry({"admin", "control"#g' package/OpenAppFilter/luci-app-oaf/luasrc/controller/appfilter.lua #更换应用控制菜单
+sed -i 's#page = entry({"admin", "services"#page = entry({"admin", "VPN"#g' package/luci-app-ssr-plus/luasrc/controller/shadowsocksr.lua #更换应用控制菜单
