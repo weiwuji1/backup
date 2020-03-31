@@ -1,0 +1,119 @@
+#=================================================
+# https://github.com/P3TERX/Actions-OpenWrt
+# Description: Build OpenWrt using GitHub Actions
+# Lisence: MIT
+# Author: P3TERX
+# Blog: https://p3terx.com
+#=================================================
+name: X64-1907
+
+on:
+# 定时触发(每天早6点)
+#  schedule:
+#    - cron: 0 22 * * *
+
+# release触发
+#  release:
+#    types: [published]
+
+# 点赞触发
+  watch:
+    types: [started]
+
+# 编辑触发
+#  push:
+#    branches: 
+#      - master
+
+env:
+  SSH_ACTIONS: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 校验本地文件
+      uses: actions/checkout@v1
+    - name: Initialization environment 初始化编译环境
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+          sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d
+          sudo -E apt-get -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* mysql* php*
+          sudo -E apt-get -qq update
+          sudo -E apt-get -qq install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs git-core gcc-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler
+          sudo ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+          sudo -E apt-get -y autoremove --purge
+          sudo -E apt-get clean
+    - name: Clone source code 克隆源代码
+      env: 
+        REPO_URL: https://github.com/Lienol/openwrt
+        REPO_BRANCH: dev-19.07
+      run: git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
+    - name: Update feeds 更新源
+      run: cd openwrt && ./scripts/feeds update -a
+
+    - name: Install feeds 安装源
+      run: cd openwrt && ./scripts/feeds install -a
+      
+    - name: 克隆第三方插件
+      run: |
+         sudo rm -rf package/lean/luci-app-flowoffload
+         sudo rm -rf package/diy/adguardhome
+         sudo rm -rf package/diy/luci-app-adguardhome
+         git clone https://github.com/weiwuji1/my.git package/my
+         git clone https://github.com/Leo-Jo-My/luci-app-vssr package/luci-app-vssr            
+         git clone https://github.com/vernesong/OpenClash package/openclash
+         git clone https://github.com/kang-mk/luci-app-serverchan package/luci-app-serverchan
+         git clone https://github.com/kang-mk/luci-app-smartinfo package/luci-app-smartinfo
+         git clone https://github.com/Leo-Jo-My/luci-theme-argon-mod package/luci-theme-argon-mod
+         git clone https://github.com/Leo-Jo-My/luci-theme-opentomcat package/luci-theme-opentomcat
+         git clone https://github.com/Leo-Jo/luci-app-koolproxyR package/luci-app-koolproxyR
+         git clone https://github.com/lisaac/luci-lib-docker.git package/luci-lib-docker
+         git clone https://github.com/lisaac/luci-app-dockerman.git package/luci-app-dockerman
+         git clone https://github.com/lisaac/luci-app-diskman package/luci-app-diskman
+         mkdir -p package/parted && cp -i package/luci-app-diskman/Parted.Makefile package/parted/Makefile
+   
+    - name: Costom configure file 导入自定义配置
+      run: |
+          cd openwrt
+          rm -f .config
+          cp ../x64-1907 .config
+          
+    - name: Make Defconfig 生成配置
+      run: |
+          cd openwrt
+          make defconfig
+          
+    - name: SSH connection to Actions 开启SSH远程连接
+      uses: P3TERX/debugger-action@master
+      if: env.SSH_ACTIONS == 'true'
+      
+    - name: Make download 下载软件包
+      run: |
+          cd openwrt
+          make download -j8
+          find dl -size -1024c -exec ls -l {} \;
+          find dl -size -1024c -exec rm -f {} \;
+    - name: Multi-thread compile 编译固件
+      run: |
+          cd openwrt
+          echo -e "$(nproc) thread build."
+          make -j$(nproc) V=s
+    - name: Single-thread compile 编译固件
+      if: failure()
+      run: |
+          cd openwrt
+          make -j1 V=s
+    - name: Assemble artifact 整理文件
+      run: |
+          rm -rf ./artifact/
+          mkdir -p ./artifact/
+          find openwrt/bin/targets/ -name "*sysupgrade*bin*" | xargs -i mv -f {} ./artifact/
+          find openwrt/bin/targets/ -name "*combined*img*" | xargs -i mv -f {} ./artifact/
+    - name: Upload artifact 上传固件
+      uses: actions/upload-artifact@master
+      with:
+        name: OpenWrt firmware
+        path: ./artifact/
