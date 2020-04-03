@@ -1,14 +1,12 @@
 # 添加第三方软件包
-git clone https://github.com/weiwuji1/my ~/package
+git clone https://github.com/weiwuji1/my package/my
 git clone https://github.com/weiwuji1/luci-app-ssr-plus package/luci-app-ssr-plus
-git clone https://github.com/Leo-Jo-My/luci-app-vssr package/luci-app-vssr
-git clone https://github.com/Leo-Jo-My/my package/my
+git clone https://github.com/Ameykyl/luci-app-vssr package/luci-app-vssr
 git clone https://github.com/vernesong/OpenClash package/openclash
 git clone https://github.com/kang-mk/luci-app-serverchan package/luci-app-serverchan
-git clone https://github.com/kang-mk/luci-app-smartinfo package/luci-app-smartinfo
 git clone https://github.com/Leo-Jo-My/luci-theme-argon-mod package/luci-theme-argon-mod
 git clone https://github.com/Leo-Jo-My/luci-theme-opentomcat package/luci-theme-opentomcat
-git clone https://github.com/Leo-Jo/luci-app-koolproxyR package/luci-app-koolproxyR
+git clone https://github.com/project-openwrt/luci-app-koolproxyR package/luci-app-koolproxyR
 git clone https://github.com/lisaac/luci-lib-docker.git package/luci-lib-docker
 git clone https://github.com/lisaac/luci-app-dockerman.git package/luci-app-dockerman
 git clone https://github.com/lisaac/luci-app-diskman package/luci-app-diskman
