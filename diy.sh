@@ -21,3 +21,4 @@ sed -i 's#option database_directory /var/lib/nlbwmon#option database_directory /
 sed -i 's#o.default = "admin"#o.default = ""#g' lienol/luci-app-passwall/luasrc/model/cbi/passwall/balancing.lua #去除haproxy默认密码(最新版已无密码)
 sed -i 's#page = entry({"admin", "network"#page = entry({"admin", "control"#g' package/OpenAppFilter/luci-app-oaf/luasrc/controller/appfilter.lua #更换应用控制菜单
 sed -i 's#page = entry({"admin", "services"#page = entry({"admin", "VPN"#g' package/luci-app-ssr-plus/luasrc/controller/shadowsocksr.lua #更换应用控制菜单
+sed -i 's#page = entry({"admin", "services"#page = entry({"admin", "VPN"#g' openwrt/package/openclash/luci-app-openclash/files/usr/lib/lua/luci/controller/openclash.lua
